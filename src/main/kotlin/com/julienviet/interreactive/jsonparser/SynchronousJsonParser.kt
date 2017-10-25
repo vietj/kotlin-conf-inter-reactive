@@ -1,4 +1,4 @@
-package com.julienviet.interreactive
+package com.julienviet.interreactive.jsonparser
 
 class SynchronousJsonParser(val stream: Iterator<Char>, val handler : (JsonEvent) -> Unit = {}) {
 

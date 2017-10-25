@@ -1,5 +1,6 @@
-package com.julienviet.interreactive
+package com.julienviet.interreactive.jsonparser
 
+import com.julienviet.interreactive.jsonparser.NonBlockingJsonParser
 import org.junit.Test
 import kotlin.test.fail
 

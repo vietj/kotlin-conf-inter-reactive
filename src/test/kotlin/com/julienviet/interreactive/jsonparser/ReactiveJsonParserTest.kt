@@ -1,14 +1,12 @@
-package com.julienviet.interreactive
+package com.julienviet.interreactive.jsonparser
 
+import com.julienviet.interreactive.toCharStream
 import io.vertx.core.Vertx
 import io.vertx.ext.unit.TestContext
 import io.vertx.ext.unit.junit.VertxUnitRunner
 import io.vertx.kotlin.coroutines.dispatcher
 import io.vertx.kotlin.coroutines.toChannel
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.selects.select
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.atomic.AtomicBoolean

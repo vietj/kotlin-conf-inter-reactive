@@ -1,5 +1,7 @@
-package com.julienviet.interreactive
+package com.julienviet.interreactive.jsonparser
 
+import com.julienviet.interreactive.jsonparser.CoroutineJsonParser
+import com.julienviet.interreactive.jsonparser.JsonEvent
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
