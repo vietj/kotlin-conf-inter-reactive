@@ -2,12 +2,12 @@ package com.julienviet.interreactive
 
 import kotlinx.coroutines.experimental.channels.ChannelIterator
 
-class CoroutineJsonParser(val stream : ChannelIterator<Char>) {
+class CoroutineJsonParser(val stream : ChannelIterator<Char>, val handler : suspend (JsonEvent) -> Unit = {}) {
 
   var c: Char? = null
 
   suspend fun parse() {
-    c = if (stream.hasNext()) stream.next() else null
+    nextChar()
     parseElement()
   }
 
@@ -21,35 +21,43 @@ class CoroutineJsonParser(val stream : ChannelIterator<Char>) {
       '{' -> parseObject()
       in '0'..'9' -> parseNumber()
       '-' -> parseNumber()
-      else -> throw IllegalStateException()
+      else -> throw IllegalStateException("Unexpected char <$c>")
     }
   }
 
   suspend fun parseNull() {
-    assertChar('n')
-    assertChar('u')
-    assertChar('l')
-    assertChar('l')
+    nextChar('n')
+    nextChar('u')
+    nextChar('l')
+    nextChar('l')
+    handler(JsonEvent.Value<Unit>(null))
   }
 
   suspend fun parseObject() {
-    assertChar('{')
+    handler(JsonEvent.StartObject())
+    nextChar('{')
     if (c == '}') {
-      assertChar('}')
+      nextChar()
     } else {
-      assertChar('"')
-      while (c != '"') {
-        when (c) {
-          in 'A'..'Z' -> assertChar()
-          in 'a'..'z' -> assertChar()
-          '"' -> {}
-          else -> throw IllegalStateException()
+      while (true) {
+        nextChar('"')
+        val acc = StringBuilder()
+        while (c != '"') {
+          acc.append(c)
+          nextChar()
         }
+        nextChar('"')
+        nextChar(':')
+        handler(JsonEvent.Member(acc.toString()))
+        parseElement()
+        if (c != ',') {
+          break
+        }
+        nextChar()
       }
-      assertChar('"')
-      assertChar(':')
-      parseElement()
+      nextChar('}')
     }
+    handler(JsonEvent.EndObject())
   }
 
   fun parseTrue() {
@@ -64,12 +72,18 @@ class CoroutineJsonParser(val stream : ChannelIterator<Char>) {
   fun parseArray() {
   }
 
-  fun parseNumber() {
+  suspend fun parseNumber() {
+    val acc = StringBuilder()
+    while (c in '0'..'9') {
+      acc.append(c)
+      nextChar()
+    }
+    handler(JsonEvent.Value(Integer.parseInt(acc.toString())))
   }
 
-  suspend fun assertChar(expected: Char? = null) {
+  suspend fun nextChar(expected: Char? = null) {
     if (expected != null && c != expected) {
-      throw IllegalStateException()
+      throw IllegalStateException("Unexpected char $expected")
     }
     if (stream.hasNext()) {
       c = stream.next()
