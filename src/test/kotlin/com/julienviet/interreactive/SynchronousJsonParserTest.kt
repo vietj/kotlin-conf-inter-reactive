@@ -9,8 +9,10 @@ class SynchronousJsonParserTest {
   fun testParseSynchronous() {
     assertParse("null")
     failParse("nul")
+    assertParse("1234")
     assertParse("{}")
-    assertParse("""{"foo":null}""")
+    assertParse("""{"foo":1234}""")
+    assertParse("""{"foo":1234,"bar":null}""")
   }
 
   fun assertParse(s: String) {

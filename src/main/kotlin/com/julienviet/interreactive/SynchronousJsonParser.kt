@@ -5,7 +5,7 @@ class SynchronousJsonParser(val stream: Iterator<Char>) {
   var c: Char? = null
 
   fun parse() {
-    c = if (stream.hasNext()) stream.next() else null
+    nextChar()
     parseElement()
   }
 
@@ -24,29 +24,31 @@ class SynchronousJsonParser(val stream: Iterator<Char>) {
   }
 
   fun parseNull() {
-    assertChar('n')
-    assertChar('u')
-    assertChar('l')
-    assertChar('l')
+    nextChar('n')
+    nextChar('u')
+    nextChar('l')
+    nextChar('l')
   }
 
   fun parseObject() {
-    assertChar('{')
+    nextChar('{')
     if (c == '}') {
-      assertChar('}')
+      nextChar()
     } else {
-      assertChar('"')
-      while (c != '"') {
-        when (c) {
-          in 'A'..'Z' -> assertChar()
-          in 'a'..'z' -> assertChar()
-          '"' -> {}
-          else -> throw IllegalStateException()
+      while (true) {
+        nextChar('"')
+        while (c != '"') {
+          nextChar()
         }
+        nextChar('"')
+        nextChar(':')
+        parseElement()
+        if (c != ',') {
+          break
+        }
+        nextChar()
       }
-      assertChar('"')
-      assertChar(':')
-      parseElement()
+      nextChar('}')
     }
   }
 
@@ -63,11 +65,14 @@ class SynchronousJsonParser(val stream: Iterator<Char>) {
   }
 
   fun parseNumber() {
+    while (c in '0'..'9') {
+      nextChar()
+    }
   }
 
-  fun assertChar(expected: Char? = null) {
+  fun nextChar(expected: Char? = null) {
     if (expected != null && c != expected) {
-      throw IllegalStateException()
+      throw IllegalStateException("Unexpected char $expected")
     }
     if (stream.hasNext()) {
       c = stream.next()
