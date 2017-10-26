@@ -1,13 +1,8 @@
 package com.julienviet.interreactive.jsonparser
 
-import com.julienviet.interreactive.jsonparser.CoroutineJsonParser
-import com.julienviet.interreactive.jsonparser.JsonEvent
 import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
-import java.util.concurrent.CountDownLatch
-import kotlin.coroutines.experimental.suspendCoroutine
 import kotlin.test.fail
 
 class CoroutineJsonParserTest {
@@ -20,6 +15,7 @@ class CoroutineJsonParserTest {
     assertParse("{}")
     assertParse("""{"foo":1234}""")
     assertParse("""{"foo":1234,"bar":null}""")
+    assertParse("""{"foo":1234}{"foo":4321}""")
   }
 
   fun assertParse(s: String) {
@@ -47,25 +43,4 @@ class CoroutineJsonParserTest {
       }
     }
   }
-
-  @Test
-  fun testBackPressure() {
-    val latch = CountDownLatch(1)
-    val channel = Channel<Char>(256)
-    launch {
-      val handler : suspend (JsonEvent) -> Unit = {
-        println("called with " + it)
-        suspendCoroutine<JsonEvent> {
-          // resume later
-        }
-      }
-      CoroutineJsonParser(channel.iterator(), handler).parse()
-    }
-    channel.offer('{')
-    channel.offer('}')
-    channel.close()
-
-    latch.await()
-  }
-
 }

@@ -8,7 +8,9 @@ class CoroutineJsonParser(val stream : ChannelIterator<Char>, val handler : susp
 
   suspend fun parse() {
     nextChar()
-    parseElement()
+    while (c != null) {
+      parseElement()
+    }
   }
 
   suspend fun parseElement() {

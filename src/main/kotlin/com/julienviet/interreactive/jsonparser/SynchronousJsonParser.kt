@@ -6,7 +6,9 @@ class SynchronousJsonParser(val stream: Iterator<Char>, val handler : (JsonEvent
 
   fun parse() {
     nextChar()
-    parseElement()
+    while (c != null) {
+      parseElement()
+    }
   }
 
   fun parseElement() {
