@@ -2,8 +2,8 @@ package com.julienviet.interreactive.jsonparser
 
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.runBlocking
+import org.junit.Assert.fail
 import org.junit.Test
-import kotlin.test.fail
 
 class CoroutineJsonParserTest {
 

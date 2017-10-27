@@ -3,6 +3,7 @@ plugins {
   id 'application'
   id 'com.github.johnrengelman.shadow' version '1.2.3'
   id "org.jetbrains.kotlin.jvm" version "1.1.51"
+  id "me.champeau.gradle.jmh" version "0.4.4" // For gradle 4.2.1
 }
 
 kotlin {
@@ -28,15 +29,18 @@ sourceCompatibility = '1.8'
 
 dependencies {
 
-compile "io.vertx:vertx-core:$version"
-compile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
-compile "io.vertx:vertx-lang-kotlin-coroutines:$version"
-compile "io.vertx:vertx-rx-java2:$version"
-compile "io.vertx:vertx-jdbc-client:$version"
-compile "io.reactivex.rxjava2:rxkotlin:2.1.0"
-compile "io.vertx:vertx-unit:$version"
-compile "org.jetbrains.kotlin:kotlin-test"
-compile "junit:junit:4.12"
+  compile "io.vertx:vertx-core:$version"
+  compile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
+  compile "io.vertx:vertx-lang-kotlin:$version"
+  compile "io.vertx:vertx-lang-kotlin-coroutines:$version"
+  compile "io.vertx:vertx-rx-java2:$version"
+  compile "io.vertx:vertx-web:$version"
+  compile "io.vertx:vertx-sql-common:$version"
+  compile "io.vertx:vertx-jdbc-client:$version"
+  compile "io.reactivex.rxjava2:rxkotlin:2.1.0"
+  compile "io.vertx:vertx-unit:$version"
+  // compile "org.jetbrains.kotlin:kotlin-test"
+  compile "junit:junit:4.12"
 
 }
 

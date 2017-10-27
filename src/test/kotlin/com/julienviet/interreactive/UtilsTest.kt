@@ -3,9 +3,9 @@ package com.julienviet.interreactive
 import io.vertx.core.Handler
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.streams.ReadStream
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.*
-import kotlin.test.assertEquals
 
 class UtilsTest {
 

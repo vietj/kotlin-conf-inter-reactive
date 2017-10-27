@@ -1,21 +1,36 @@
 package com.julienviet.interreactive.bufferedjsonparser
 
 import com.julienviet.interreactive.jsonparser.JsonEvent
-
 import io.vertx.core.buffer.Buffer
-import java.util.*
+import kotlinx.coroutines.experimental.channels.ChannelIterator
+import kotlinx.coroutines.experimental.runBlocking
 
 private val NO_CHAR = '\u0000'
 
-class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
+private val EMPTY_ITERATOR: ChannelIterator<Buffer> = object: ChannelIterator<Buffer> {
+  suspend override fun hasNext(): Boolean {
+    return false;
+  }
+  suspend override fun next(): Buffer {
+    throw IllegalStateException()
+  }
+}
 
-  var stream: Iterator<Buffer> = Collections.emptyIterator()
+class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
+
+  var stream: ChannelIterator<Buffer> = EMPTY_ITERATOR
   var c: Char = NO_CHAR
   var buffer: Buffer? = null
   var index = 0
 
-  fun parse(b: Buffer) {
-    stream = Collections.emptyIterator()
+  fun parseBlocking(b: Buffer) {
+    runBlocking {
+      parse(b)
+    }
+  }
+
+  suspend fun parse(b: Buffer) {
+    stream = EMPTY_ITERATOR
     buffer = b
     nextChar()
     while (c != NO_CHAR) {
@@ -23,7 +38,7 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
     }
   }
 
-  fun parse(i: Iterator<Buffer>) {
+  suspend fun parse(i: ChannelIterator<Buffer>) {
     stream = i
     buffer = null
     nextChar()
@@ -32,7 +47,7 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
     }
   }
 
-  private fun parseElement() {
+  private suspend fun parseElement() {
     when (c) {
       'n' -> parseNull()
       't' -> parseTrue()
@@ -46,7 +61,7 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
     }
   }
 
-  private fun parseNull() {
+  private suspend fun parseNull() {
     nextChar('n')
     nextChar('u')
     nextChar('l')
@@ -54,7 +69,7 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
     handler(JsonEvent.Value<Unit>(null))
   }
 
-  private fun parseObject() {
+  private suspend fun parseObject() {
     handler(JsonEvent.StartObject())
     nextChar('{')
     if (c == '}') {
@@ -93,7 +108,7 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
   private fun parseArray() {
   }
 
-  private fun parseNumber() {
+  private suspend fun parseNumber() {
     val acc = StringBuilder()
     while (c in '0'..'9') {
       acc.append(c)
@@ -102,7 +117,7 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
     handler(JsonEvent.Value(Integer.parseInt(acc.toString())))
   }
 
-  private fun nextChar(expected: Char? = null) {
+  private suspend fun nextChar(expected: Char? = null) {
     if (expected != null && c != expected) {
       throw IllegalStateException("Unexpected char $expected")
     }

@@ -2,30 +2,30 @@ package com.julienviet.interreactive.bufferedjsonparser
 
 import com.julienviet.interreactive.jsonparser.JsonEvent
 import com.julienviet.interreactive.toBufferIterator
+import io.vertx.core.buffer.Buffer
 import io.vertx.core.json.JsonObject
-import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
+import org.junit.Assert
 import org.junit.Test
 import java.util.*
 
-class SynchronousBufferedJsonParserTest {
+class CoroutineBufferedJsonParserTest {
 
   @Test
-  fun testParseSynchronous() {
-    assertEquals(listOf(null), assertParse("null"))
+  fun testParse() {
+    Assert.assertEquals(listOf(null), assertParse("null"))
     failParse("nul")
-    assertEquals(listOf(1234), assertParse("1234"))
-    assertEquals(listOf(JsonObject()), assertParse("{}"))
-    assertEquals(listOf(JsonObject().put("foo", 1234)), assertParse("""{"foo":1234}"""))
-    assertEquals(listOf(JsonObject().put("foo", 1234).putNull("bar")), assertParse("""{"foo":1234,"bar":null}"""))
-    assertEquals(listOf(JsonObject().put("foo", 1234), JsonObject().put("foo", 4321)), assertParse("""{"foo":1234}{"foo":4321}"""))
+    Assert.assertEquals(listOf(1234), assertParse("1234"))
+    Assert.assertEquals(listOf(JsonObject()), assertParse("{}"))
+    Assert.assertEquals(listOf(JsonObject().put("foo", 1234)), assertParse("""{"foo":1234}"""))
+    Assert.assertEquals(listOf(JsonObject().put("foo", 1234).putNull("bar")), assertParse("""{"foo":1234,"bar":null}"""))
+    Assert.assertEquals(listOf(JsonObject().put("foo", 1234), JsonObject().put("foo", 4321)), assertParse("""{"foo":1234}{"foo":4321}"""))
   }
 
   fun assertParse(s: String): List<Any?> {
     val result = ArrayList<Any?>()
     val stack = Stack<JsonObject>()
     var name: String? = null
-    SynchronousJsonParser({ event ->
+    CoroutineJsonParser({ event ->
       when (event) {
         is JsonEvent.Member -> name = event.name
         is JsonEvent.Value<*> -> {
@@ -48,14 +48,14 @@ class SynchronousBufferedJsonParserTest {
         }
         is JsonEvent.EndObject -> stack.pop()
       }
-    }).parse(toBufferIterator(s))
+    }).parseBlocking(Buffer.buffer(s))
     return result
   }
 
   fun failParse(s: String) {
     try {
-      SynchronousJsonParser().parse(toBufferIterator(s))
-      fail()
+      CoroutineJsonParser().parseBlocking(Buffer.buffer(s))
+      Assert.fail()
     } catch (e: IllegalStateException) {
     }
   }

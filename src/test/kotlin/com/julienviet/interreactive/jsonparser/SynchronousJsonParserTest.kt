@@ -1,10 +1,10 @@
 package com.julienviet.interreactive.jsonparser
 
 import io.vertx.core.json.JsonObject
+import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Test
 import java.util.*
-import kotlin.test.assertEquals
-import kotlin.test.fail
 
 class SynchronousJsonParserTest {
 

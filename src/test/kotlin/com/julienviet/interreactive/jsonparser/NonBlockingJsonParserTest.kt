@@ -1,8 +1,7 @@
 package com.julienviet.interreactive.jsonparser
 
-import com.julienviet.interreactive.jsonparser.NonBlockingJsonParser
+import org.junit.Assert.fail
 import org.junit.Test
-import kotlin.test.fail
 
 class NonBlockingJsonParserTest {
 
