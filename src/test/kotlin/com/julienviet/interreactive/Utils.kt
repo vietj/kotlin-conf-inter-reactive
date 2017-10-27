@@ -3,7 +3,17 @@ package com.julienviet.interreactive
 import io.vertx.core.Handler
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.streams.ReadStream
+import java.lang.Math.min
 import java.util.*
+import kotlin.collections.ArrayList
+
+fun toBufferIterator(s: String): Iterator<Buffer> {
+  val list = ArrayList<Buffer>()
+  for (index in 0 until s.length step 2) {
+    list += Buffer.buffer(s.substring(index, min(index + 2, s.length)))
+  }
+  return list.iterator()
+}
 
 fun ReadStream<Buffer>.toCharStream() : ReadStream<Char> {
   val adapter = Adapter(this)

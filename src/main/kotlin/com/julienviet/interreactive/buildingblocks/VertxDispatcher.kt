@@ -9,7 +9,7 @@ fun main(args: Array<String>) {
   val vertx = Vertx.vertx()
   launch(vertx.dispatcher()) {
     println("Hello")
-    awaitEvent<Long> { vertx.setTimer(1000, it) }
+    awaitEvent<Long> {  }
     println("World")
   }
 }
