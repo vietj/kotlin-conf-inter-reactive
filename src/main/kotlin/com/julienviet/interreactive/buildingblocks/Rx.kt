@@ -1,12 +1,11 @@
 package com.julienviet.interreactive.buildingblocks
 
-import io.vertx.core.Vertx
-import io.vertx.core.eventbus.Message
-import io.vertx.kotlin.coroutines.awaitResult
+import io.vertx.reactivex.core.Vertx
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.rx2.await
 
-fun main(args: Array<String>) {
+fun Rx(args: Array<String>) {
 
   val vertx = Vertx.vertx()
   val bus = vertx.eventBus()
@@ -15,11 +14,12 @@ fun main(args: Array<String>) {
     msg.reply("pong")
   }
 
-  launch(vertx.dispatcher()) {
+  launch(vertx.delegate.dispatcher()) {
 
     try {
-      val reply = awaitResult<Message<String>> { bus.send("the-address", "ping", it) }
-
+      val reply = bus
+        .rxSend<String>("the-address", "ping")
+        .await()
       val pong = reply.body()
       println("Got reply $pong")
 
