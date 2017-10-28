@@ -46,8 +46,8 @@ class MovieRatingTest {
 
   @Test
   fun testRateMovie(ctx: TestContext) {
-    client.post("/rateMovie/starwars")
-      .setQueryParam("rate", "5")
+    client.post("/rate/starwars")
+      .setQueryParam("rating", "5")
       .send(ctx.asyncAssertSuccess {
         ctx.assertEquals(201, it.statusCode())
       })
@@ -55,8 +55,8 @@ class MovieRatingTest {
 
   @Test
   fun testRateNotFoundMovie(ctx: TestContext) {
-    client.post("/rateMovie/does-not-exists")
-      .setQueryParam("rate", "5")
+    client.post("/rate/does-not-exists")
+      .setQueryParam("rating", "5")
       .send(ctx.asyncAssertSuccess {
         ctx.assertEquals(404, it.statusCode())
       })

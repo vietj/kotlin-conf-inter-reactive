@@ -53,8 +53,8 @@ class App : AbstractVerticle() {
     // Build Vert.x Web router
     val router = Router.router(vertx)
     router.get("/movie/:id").handler { ctx -> getMovie(ctx) }
-    router.post("/rateMovie/:id").handler { ctx -> rateMovie(ctx) }
-    router.get("/getRating/:id").handler { ctx -> getRating(ctx) }
+    router.post("/rate/:id").handler { ctx -> rateMovie(ctx) }
+    router.get("/rating/:id").handler { ctx -> getRating(ctx) }
 
     client.getConnection {
       if (it.succeeded()) {
@@ -109,7 +109,7 @@ class App : AbstractVerticle() {
   // Rate a movie
   fun rateMovie(ctx: RoutingContext) {
     val movie = ctx.pathParam("id")
-    val rating = Integer.parseInt(ctx.queryParam("rate")[0])
+    val rating = Integer.parseInt(ctx.queryParam("rating")[0])
     client.getConnection { ar1 ->
       if (ar1.succeeded()) {
         val connection = ar1.result()
@@ -148,7 +148,7 @@ class App : AbstractVerticle() {
       if (ar.succeeded()) {
         val result = ar.result()
         ctx.response().end(json {
-          obj("id" to id, "getRating" to result.rows[0]["VALUE"]).encode()
+          obj("id" to id, "rating" to result.rows[0]["VALUE"]).encode()
         })
       } else {
         ctx.fail(ar.cause())
