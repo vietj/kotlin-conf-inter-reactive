@@ -2,7 +2,10 @@ package com.julienviet.interreactive.bufferedjsonparser
 
 import com.julienviet.interreactive.jsonparser.JsonEvent
 import io.vertx.core.buffer.Buffer
+import kotlinx.coroutines.experimental.Unconfined
+import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ChannelIterator
+import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 
 private val NO_CHAR = '\u0000'
@@ -23,9 +26,21 @@ class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
   var buffer: Buffer? = null
   var index = 0
 
-  fun parseBlocking(b: Buffer) {
+  fun parseBlocking(buffer: Buffer) {
     runBlocking {
-      parse(b)
+      parse(buffer)
+    }
+  }
+
+  fun parseBlocking(buffers: Array<Buffer>) {
+    val channel = Channel<Buffer>()
+    launch(Unconfined) {
+      parse(channel.iterator())
+    }
+    for (buffer in buffers) {
+      if (!channel.offer(buffer)) {
+        throw IllegalStateException()
+      }
     }
   }
 
