@@ -5,6 +5,8 @@ import com.julienviet.interreactive.bufferedjsonparser.SynchronousJsonParser;
 import com.julienviet.interreactive.jsonparser.JsonEvent;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.parsetools.JsonParser;
 import io.vertx.core.parsetools.impl.JsonParserImpl;
 import kotlin.Unit;
@@ -13,6 +15,7 @@ import org.openjdk.jmh.annotations.*;
 
 import java.lang.reflect.Method;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Warmup(iterations = 20, time = 1)
@@ -53,9 +56,24 @@ public class JsonParserBenchmark {
     return null;
   }
 
+  @CompilerControl(CompilerControl.Mode.DONT_INLINE)
+  public static void vertxConsume(final Map obj) {
+  }
+
   @Setup
   public void setup() {
-    buffer = Buffer.buffer("{}");
+    buffer = new JsonObject()
+      .put("number0", 0)
+      .put("number1", 1)
+      .put("number2", 2)
+      .put("number3", 3)
+      .put("number4", 4)
+      .put("number5", 5)
+      .put("number6", 6)
+      .put("number7", 7)
+      .put("number8", 8)
+      .put("number9", 9)
+      .toBuffer();
     bytes = buffer.getBytes();
   }
 
@@ -66,15 +84,20 @@ public class JsonParserBenchmark {
   }
 
   @Benchmark
-  public void coroutineJsonParser() throws Exception {
+  public void eventDrivenJsonParser() throws Exception {
     CoroutineJsonParser parser = new CoroutineJsonParser(kotlinConsume);
     parser.parseBlocking(buffer);
   }
 
   @Benchmark
-  public void reactiveJsonParser() throws Exception {
+  public void eventDrivenJackson() throws Exception {
     JsonParser parser = JsonParser.newParser();
     parser.handler(vertxConsume);
     parse.invoke(parser, bytes);
+  }
+
+  @Benchmark
+  public void synchronousJackson() throws Exception {
+    vertxConsume(Json.decodeValue(buffer, Map.class));
   }
 }
