@@ -12,7 +12,7 @@ import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
 
-@Warmup(iterations = 20, time = 1)
+@Warmup(iterations = 10, time = 1)
 @Measurement(iterations = 10, time = 2)
 @Threads(1)
 @BenchmarkMode(Mode.Throughput)

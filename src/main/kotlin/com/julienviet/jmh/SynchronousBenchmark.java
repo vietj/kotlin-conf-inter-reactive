@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@Warmup(iterations = 20, time = 1)
+@Warmup(iterations = 10, time = 1)
 @Measurement(iterations = 10, time = 2)
 @Threads(1)
 @BenchmarkMode(Mode.Throughput)
@@ -48,7 +48,7 @@ public class SynchronousBenchmark {
     for (int i = 0;i < size;i++) {
       obj.put("number" + i, i);
     }
-    Buffer buffer = obj.toBuffer();
+    buffer = obj.toBuffer();
   }
 
   @Benchmark
