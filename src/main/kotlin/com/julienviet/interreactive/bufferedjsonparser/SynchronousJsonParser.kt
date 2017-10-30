@@ -93,16 +93,57 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
     handler(JsonEvent.EndObject())
   }
 
+  private fun parseArray() {
+    handler(JsonEvent.StartArray())
+    nextChar('[')
+    skipWhitespace()
+    if (c == ']') {
+      nextChar()
+    } else {
+      while (true) {
+        parseElement()
+        skipWhitespace()
+        if (c == ']') {
+          nextChar()
+          skipWhitespace()
+          break
+        } else if (c == ',') {
+          nextChar()
+          skipWhitespace()
+        } else {
+          throw IllegalStateException()
+        }
+      }
+    }
+    handler(JsonEvent.StartArray())
+  }
+
   private fun parseTrue() {
+    nextChar('t')
+    nextChar('r')
+    nextChar('u')
+    nextChar('e')
+    handler(JsonEvent.Value(true))
   }
 
   private fun parseFalse() {
+    nextChar('f')
+    nextChar('a')
+    nextChar('l')
+    nextChar('s')
+    nextChar('e')
+    handler(JsonEvent.Value(false))
   }
 
   private fun parseString() {
-  }
-
-  private fun parseArray() {
+    nextChar('"')
+    val acc = StringBuilder()
+    while (c != '"') {
+      acc.append(c)
+      nextChar()
+    }
+    nextChar('"')
+    handler(JsonEvent.Value(acc.toString()))
   }
 
   private fun parseNumber() {

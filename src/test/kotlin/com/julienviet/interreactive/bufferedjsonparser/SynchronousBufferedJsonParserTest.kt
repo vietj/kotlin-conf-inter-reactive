@@ -2,6 +2,7 @@ package com.julienviet.interreactive.bufferedjsonparser
 
 import com.julienviet.interreactive.jsonparser.JsonEvent
 import com.julienviet.interreactive.toBufferIterator
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -17,10 +18,14 @@ class SynchronousBufferedJsonParserTest {
     val tests: List<List<Any?>> = listOf(
       listOf(null),
       listOf(1234),
+      listOf("the-string"),
+      listOf(true),
+      listOf(false),
       listOf(JsonObject()),
       listOf(JsonObject().put("foo", 1234)),
       listOf(JsonObject().put("foo", 1234).putNull("bar")),
       listOf(JsonObject().put("foo", 1234), JsonObject().put("foo", 4321))
+      // listOf(JsonArray())
     )
 
     for (test in tests) {
@@ -91,21 +96,24 @@ fun generator(list: List<String>): List<String> {
   return ret
 }
 
-fun toJSON(elt: Any?): List<String> {
-  when (elt) {
+fun toJSON(obj: Any?): List<String> {
+  when (obj) {
     null -> return listOf("null")
+    true -> return listOf("true")
+    false -> return listOf("false")
     is List<*> -> {
       val list = ArrayList<String>()
-      for (e in elt) {
+      for (e in obj) {
         list.addAll(toJSON(e))
       }
       return list
     }
-    is Number -> return listOf(elt.toString())
+    is String -> return listOf("\"$obj\"")
+    is Number -> return listOf(obj.toString())
     is JsonObject -> {
       val list = ArrayList<String>()
       list.add("{")
-      elt.forEachIndexed { index, entry ->
+      obj.forEachIndexed { index, entry ->
         if (index > 0) {
           list.add(",")
         }
@@ -114,6 +122,18 @@ fun toJSON(elt: Any?): List<String> {
         list.addAll(toJSON(entry.value))
       }
       list.add("}")
+      return list
+    }
+    is JsonArray -> {
+      val list = ArrayList<String>()
+      list.add("[")
+      obj.forEachIndexed { index, value ->
+        if (index > 0) {
+          list.add(",")
+        }
+        list.addAll(toJSON(value))
+      }
+      list.add("]")
       return list
     }
     else -> throw IllegalStateException()

@@ -2,13 +2,11 @@ package com.julienviet.interreactive.jsonparser
 
 sealed class JsonEvent {
 
-  class StartObject : JsonEvent() {
+  class StartObject : JsonEvent() {}
+  class EndObject : JsonEvent() {}
 
-  }
-
-  class EndObject : JsonEvent() {
-
-  }
+  class StartArray : JsonEvent() {}
+  class EndArray : JsonEvent() {}
 
   class Value<T>(val value: T?) : JsonEvent() {
     override fun toString(): String {
