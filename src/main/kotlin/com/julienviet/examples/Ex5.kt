@@ -12,12 +12,16 @@ fun main(args: Array<String>) {
   val output = ByteArrayOutputStream()
 
   val buffer = ByteArray(256)
-  while (true) {
-    val amount = input.read(buffer)
-    if (amount == -1) {
-      break
+  try {
+    while (true) {
+      val amount = input.read(buffer)
+      if (amount == -1) {
+        break
+      }
+      output.write(buffer, 0, amount)
     }
-    output.write(buffer, 0, amount)
+  } finally {
+    output.close()
   }
 
   // Transfering data

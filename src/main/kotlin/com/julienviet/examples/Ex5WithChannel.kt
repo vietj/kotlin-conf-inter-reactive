@@ -18,7 +18,11 @@ fun Ex5WithChannel(vertx: Vertx, readStream: ReadStream<Buffer>, writeStream: Wr
 
   launch(vertx.dispatcher()) {
     try {
-      for (buffer in input) {
+      while (true) {
+        val buffer = input.receiveOrNull()
+        if (buffer == null) {
+          break;
+        }
         output.send(buffer);
       }
     } finally {
