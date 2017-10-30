@@ -7,18 +7,29 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 import java.util.*
+import kotlin.collections.ArrayList
 
 class SynchronousBufferedJsonParserTest {
 
   @Test
   fun testParseSynchronous() {
-    assertEquals(listOf(null), assertParse("null"))
+
+    val tests: List<List<Any?>> = listOf(
+      listOf(null),
+      listOf(1234),
+      listOf(JsonObject()),
+      listOf(JsonObject().put("foo", 1234)),
+      listOf(JsonObject().put("foo", 1234).putNull("bar")),
+      listOf(JsonObject().put("foo", 1234), JsonObject().put("foo", 4321))
+    )
+
+    for (test in tests) {
+      generator(toJSON(test)).forEach {
+        assertEquals(test, assertParse(it))
+      }
+    }
+
     failParse("nul")
-    assertEquals(listOf(1234), assertParse("1234"))
-    assertEquals(listOf(JsonObject()), assertParse("{}"))
-    assertEquals(listOf(JsonObject().put("foo", 1234)), assertParse("""{"foo":1234}"""))
-    assertEquals(listOf(JsonObject().put("foo", 1234).putNull("bar")), assertParse("""{"foo":1234,"bar":null}"""))
-    assertEquals(listOf(JsonObject().put("foo", 1234), JsonObject().put("foo", 4321)), assertParse("""{"foo":1234}{"foo":4321}"""))
   }
 
   fun assertParse(s: String): List<Any?> {
@@ -60,3 +71,52 @@ class SynchronousBufferedJsonParserTest {
     }
   }
 }
+
+fun generator(list: List<String>): List<String> {
+  val ret = ArrayList<String>()
+  for (index in 0..list.size) {
+    val copy = LinkedList(list)
+    copy.add(index, " ")
+    val sb = StringBuilder()
+    for (elt in copy) {
+      sb.append(elt)
+    }
+    ret.add(sb.toString())
+  }
+  val sb = StringBuilder()
+  for (elt in list) {
+    sb.append(elt)
+  }
+  ret.add(sb.toString())
+  return ret
+}
+
+fun toJSON(elt: Any?): List<String> {
+  when (elt) {
+    null -> return listOf("null")
+    is List<*> -> {
+      val list = ArrayList<String>()
+      for (e in elt) {
+        list.addAll(toJSON(e))
+      }
+      return list
+    }
+    is Number -> return listOf(elt.toString())
+    is JsonObject -> {
+      val list = ArrayList<String>()
+      list.add("{")
+      elt.forEachIndexed { index, entry ->
+        if (index > 0) {
+          list.add(",")
+        }
+        list.add('"' + entry.key + '"')
+        list.add(":")
+        list.addAll(toJSON(entry.value))
+      }
+      list.add("}")
+      return list
+    }
+    else -> throw IllegalStateException()
+  }
+}
+

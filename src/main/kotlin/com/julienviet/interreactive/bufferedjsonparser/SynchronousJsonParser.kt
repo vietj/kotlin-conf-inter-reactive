@@ -19,6 +19,7 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
     buffer = b
     nextChar()
     while (c != NO_CHAR) {
+      skipWhitespace()
       parseElement()
     }
   }
@@ -28,7 +29,9 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
     buffer = null
     nextChar()
     while (c != NO_CHAR) {
+      skipWhitespace()
       parseElement()
+      skipWhitespace()
     }
   }
 
@@ -57,6 +60,7 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
   private fun parseObject() {
     handler(JsonEvent.StartObject())
     nextChar('{')
+    skipWhitespace()
     if (c == '}') {
       nextChar()
     } else {
@@ -68,15 +72,23 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
           nextChar()
         }
         nextChar('"')
+        skipWhitespace()
         nextChar(':')
+        skipWhitespace()
         handler(JsonEvent.Member(acc.toString()))
         parseElement()
-        if (c != ',') {
+        skipWhitespace()
+        if (c == '}') {
+          nextChar()
+          skipWhitespace()
           break
+        } else if (c == ',') {
+          nextChar()
+          skipWhitespace()
+        } else {
+          throw IllegalStateException()
         }
-        nextChar()
       }
-      nextChar('}')
     }
     handler(JsonEvent.EndObject())
   }
@@ -122,4 +134,11 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
       }
     }
   }
+
+  private fun skipWhitespace() {
+    while (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+      nextChar()
+    }
+  }
+
 }
