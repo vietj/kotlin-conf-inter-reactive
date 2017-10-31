@@ -1,16 +1,21 @@
 package com.julienviet.movierating
 
 import io.vertx.core.Vertx
+import io.vertx.core.buffer.Buffer
 import io.vertx.ext.unit.TestContext
 import io.vertx.ext.unit.junit.VertxUnitRunner
+import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.core.json.json
 import io.vertx.kotlin.core.json.obj
 import io.vertx.kotlin.ext.web.client.WebClientOptions
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.CountDownLatch
 
 @RunWith(VertxUnitRunner::class)
 class MovieRatingTest {
@@ -45,12 +50,28 @@ class MovieRatingTest {
   }
 
   @Test
-  fun testRateMovie(ctx: TestContext) {
+  fun testRateMovie() {
+
+    var result: Any? = null
+
     client.post("/rate/starwars")
       .setQueryParam("rating", "5")
-      .send(ctx.asyncAssertSuccess {
-        ctx.assertEquals(201, it.statusCode())
-      })
+      .send { ar ->
+        if (ar.succeeded()) {
+          result = ar.result()
+        } else {
+          result = ar.cause()
+        }
+      }
+
+    while (result == null) {
+      Thread.sleep(10)
+    }
+    when (result) {
+      is HttpResponse<*> -> assertEquals(201, (result as HttpResponse<*>).statusCode())
+      is Throwable -> fail((result as Throwable).message)
+      else -> throw AssertionError()
+    }
   }
 
   @Test
