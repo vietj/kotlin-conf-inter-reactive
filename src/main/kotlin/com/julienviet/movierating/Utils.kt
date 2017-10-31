@@ -1,6 +1,7 @@
 package com.julienviet.movierating
 
 import io.vertx.ext.web.Route
+import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.experimental.launch
@@ -8,8 +9,8 @@ import kotlinx.coroutines.experimental.launch
 /**
  * An extension method for simplifying coroutines usage with Vert.x Web routers
  */
-fun Route.coroutineHandler(fn : suspend (RoutingContext) -> Unit) {
-  handler { ctx ->
+fun Route.handler(fn : suspend (RoutingContext) -> Unit): Route {
+  return handler { ctx ->
     launch(ctx.vertx().dispatcher()) {
       try {
         fn(ctx)
@@ -18,4 +19,16 @@ fun Route.coroutineHandler(fn : suspend (RoutingContext) -> Unit) {
       }
     }
   }
+}
+
+fun Router.get(path: String, handler: suspend (RoutingContext) -> Unit): Route {
+  return get(path).handler(handler)
+}
+
+fun Router.post(path: String, handler: suspend (RoutingContext) -> Unit): Route {
+  return get(path).handler(handler)
+}
+
+operator fun Router.invoke(body: Router.() -> Unit) {
+  body(this)
 }

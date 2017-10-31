@@ -52,9 +52,18 @@ class App : AbstractVerticle() {
 
     // Build Vert.x Web router
     val router = Router.router(vertx)
-    router.get("/movie/:id").handler { ctx -> getMovie(ctx) }
-    router.post("/rate/:id").handler { ctx -> rateMovie(ctx) }
-    router.get("/rating/:id").handler { ctx -> getRating(ctx) }
+
+    router {
+      get("/movie/:id") {
+        ctx -> getMovie(ctx)
+      }
+      post("/rate/:id") {
+        ctx -> rateMovie(ctx)
+      }
+      get("/rating/:id") {
+        ctx -> getRating(ctx)
+      }
+    }
 
     client.getConnection {
       if (it.succeeded()) {
