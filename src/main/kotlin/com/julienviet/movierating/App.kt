@@ -87,7 +87,7 @@ class App : AbstractVerticle() {
   }
 
   // Send info about a movie
-  fun getMovie(ctx: RoutingContext) {
+  private fun getMovie(ctx: RoutingContext) {
     val id = ctx.pathParam("id")
     client.queryWithParams("SELECT TITLE FROM MOVIE WHERE ID=?", json { array(id) }) {
       ar ->
@@ -107,7 +107,7 @@ class App : AbstractVerticle() {
   }
 
   // Rate a movie
-  fun rateMovie(ctx: RoutingContext) {
+  private fun rateMovie(ctx: RoutingContext) {
     val movie = ctx.pathParam("id")
     val rating = Integer.parseInt(ctx.queryParam("rating")[0])
     client.getConnection { ar1 ->
@@ -142,7 +142,7 @@ class App : AbstractVerticle() {
   }
 
   // Get the current rating of a movie
-  fun getRating(ctx: RoutingContext) {
+  private fun getRating(ctx: RoutingContext) {
     val id = ctx.pathParam("id")
     client.queryWithParams("SELECT AVG(VALUE) AS VALUE FROM RATING WHERE MOVIE_ID=?", json { array(id) }) { ar ->
       if (ar.succeeded()) {
