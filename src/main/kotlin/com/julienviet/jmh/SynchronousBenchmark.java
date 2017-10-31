@@ -1,5 +1,6 @@
 package com.julienviet.jmh;
 
+import com.julienviet.interreactive.bufferedjsonparser.HelpersKt;
 import com.julienviet.interreactive.bufferedjsonparser.SynchronousJsonParser;
 import com.julienviet.interreactive.jsonparser.JsonEvent;
 import io.vertx.core.buffer.Buffer;
@@ -54,7 +55,7 @@ public class SynchronousBenchmark {
   @Benchmark
   public void jsonParser() throws Exception {
     SynchronousJsonParser parser = new SynchronousJsonParser(kotlinConsume);
-    parser.parse(buffer);
+    HelpersKt.parse(parser, buffer);
   }
 
   @Benchmark

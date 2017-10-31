@@ -2,63 +2,23 @@ package com.julienviet.interreactive.bufferedjsonparser
 
 import com.julienviet.interreactive.jsonparser.JsonEvent
 import io.vertx.core.buffer.Buffer
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ChannelIterator
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
-
-private val NO_CHAR = '\u0000'
-
-private val EMPTY_ITERATOR: ChannelIterator<Buffer> = object: ChannelIterator<Buffer> {
-  suspend override fun hasNext(): Boolean {
-    return false;
-  }
-  suspend override fun next(): Buffer {
-    throw IllegalStateException()
-  }
-}
 
 class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
 
-  var stream: ChannelIterator<Buffer> = EMPTY_ITERATOR
+  var stream: ChannelIterator<Buffer> = emptyChannelIterator()
   var c: Char = NO_CHAR
   var buffer: Buffer? = null
   var index = 0
-
-  fun parseBlocking(buffer: Buffer) {
-    runBlocking {
-      parse(buffer)
-    }
-  }
-
-  fun parseBlocking(buffers: Array<Buffer>) {
-    val channel = Channel<Buffer>()
-    launch(Unconfined) {
-      parse(channel.iterator())
-    }
-    for (buffer in buffers) {
-      if (!channel.offer(buffer)) {
-        throw IllegalStateException()
-      }
-    }
-  }
-
-  suspend fun parse(b: Buffer) {
-    stream = EMPTY_ITERATOR
-    buffer = b
-    nextChar()
-    while (c != NO_CHAR) {
-      parseElement()
-    }
-  }
 
   suspend fun parse(i: ChannelIterator<Buffer>) {
     stream = i
     buffer = null
     nextChar()
     while (c != NO_CHAR) {
+      skipWhitespace()
       parseElement()
+      skipWhitespace()
     }
   }
 
@@ -72,7 +32,7 @@ class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
       '{' -> parseObject()
       in '0'..'9' -> parseNumber()
       '-' -> parseNumber()
-      else -> throw IllegalStateException("Unexpected char <$c>")
+      else -> throw IllegalStateException("Unexpected char <${c.toInt()}>")
     }
   }
 
@@ -87,6 +47,7 @@ class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
   private suspend fun parseObject() {
     handler(JsonEvent.StartObject())
     nextChar('{')
+    skipWhitespace()
     if (c == '}') {
       nextChar()
     } else {
@@ -98,29 +59,78 @@ class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
           nextChar()
         }
         nextChar('"')
+        skipWhitespace()
         nextChar(':')
+        skipWhitespace()
         handler(JsonEvent.Member(acc.toString()))
         parseElement()
-        if (c != ',') {
+        skipWhitespace()
+        if (c == '}') {
+          nextChar()
+          skipWhitespace()
           break
+        } else if (c == ',') {
+          nextChar()
+          skipWhitespace()
+        } else {
+          throw IllegalStateException()
         }
-        nextChar()
       }
-      nextChar('}')
     }
     handler(JsonEvent.EndObject())
   }
 
-  private fun parseTrue() {
+  private suspend fun parseArray() {
+    handler(JsonEvent.StartArray())
+    nextChar('[')
+    skipWhitespace()
+    if (c == ']') {
+      nextChar()
+    } else {
+      while (true) {
+        parseElement()
+        skipWhitespace()
+        if (c == ']') {
+          nextChar()
+          skipWhitespace()
+          break
+        } else if (c == ',') {
+          nextChar()
+          skipWhitespace()
+        } else {
+          throw IllegalStateException()
+        }
+      }
+    }
+    handler(JsonEvent.EndArray())
   }
 
-  private fun parseFalse() {
+  private suspend fun parseTrue() {
+    nextChar('t')
+    nextChar('r')
+    nextChar('u')
+    nextChar('e')
+    handler(JsonEvent.Value(true))
   }
 
-  private fun parseString() {
+  private suspend fun parseFalse() {
+    nextChar('f')
+    nextChar('a')
+    nextChar('l')
+    nextChar('s')
+    nextChar('e')
+    handler(JsonEvent.Value(false))
   }
 
-  private fun parseArray() {
+  private suspend fun parseString() {
+    nextChar('"')
+    val acc = StringBuilder()
+    while (c != '"') {
+      acc.append(c)
+      nextChar()
+    }
+    nextChar('"')
+    handler(JsonEvent.Value(acc.toString()))
   }
 
   private suspend fun parseNumber() {
@@ -134,7 +144,7 @@ class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
 
   private suspend fun nextChar(expected: Char? = null) {
     if (expected != null && c != expected) {
-      throw IllegalStateException("Unexpected char $expected")
+      throw IllegalStateException("Unexpected char ${c.toInt()}")
     }
     while (true) {
       val b = buffer
@@ -150,6 +160,12 @@ class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
         c = b.getByte(index++).toChar()
         break
       }
+    }
+  }
+
+  private suspend fun skipWhitespace() {
+    while (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+      nextChar()
     }
   }
 }

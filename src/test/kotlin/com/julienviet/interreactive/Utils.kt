@@ -7,12 +7,12 @@ import java.lang.Math.min
 import java.util.*
 import kotlin.collections.ArrayList
 
-fun toBufferIterator(s: String): Iterator<Buffer> {
+fun splitToBuffers(s: String): List<Buffer> {
   val list = ArrayList<Buffer>()
   for (index in 0 until s.length step 2) {
     list += Buffer.buffer(s.substring(index, min(index + 2, s.length)))
   }
-  return list.iterator()
+  return list
 }
 
 fun ReadStream<Buffer>.toCharStream() : ReadStream<Char> {

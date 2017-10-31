@@ -1,11 +1,8 @@
 package com.julienviet.interreactive.bufferedjsonparser
 
 import com.julienviet.interreactive.jsonparser.JsonEvent
-
 import io.vertx.core.buffer.Buffer
 import java.util.*
-
-private val NO_CHAR = '\u0000'
 
 class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
 
@@ -13,16 +10,6 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
   var c: Char = NO_CHAR
   var buffer: Buffer? = null
   var index = 0
-
-  fun parse(b: Buffer) {
-    stream = Collections.emptyIterator()
-    buffer = b
-    nextChar()
-    while (c != NO_CHAR) {
-      skipWhitespace()
-      parseElement()
-    }
-  }
 
   fun parse(i: Iterator<Buffer>) {
     stream = i
@@ -45,7 +32,7 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
       '{' -> parseObject()
       in '0'..'9' -> parseNumber()
       '-' -> parseNumber()
-      else -> throw IllegalStateException("Unexpected char <$c>")
+      else -> throw IllegalStateException("Unexpected char <${c.toInt()}>")
     }
   }
 
@@ -115,7 +102,7 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
         }
       }
     }
-    handler(JsonEvent.StartArray())
+    handler(JsonEvent.EndArray())
   }
 
   private fun parseTrue() {
@@ -157,7 +144,7 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
 
   private fun nextChar(expected: Char? = null) {
     if (expected != null && c != expected) {
-      throw IllegalStateException("Unexpected char $expected")
+      throw IllegalStateException("Unexpected char ${c.toInt()}")
     }
     while (true) {
       val b = buffer
@@ -181,5 +168,4 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
       nextChar()
     }
   }
-
 }

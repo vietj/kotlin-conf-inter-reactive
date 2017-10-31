@@ -1,6 +1,7 @@
 package com.julienviet.jmh;
 
 import com.julienviet.interreactive.bufferedjsonparser.CoroutineJsonParser;
+import com.julienviet.interreactive.bufferedjsonparser.HelpersKt;
 import com.julienviet.interreactive.jsonparser.JsonEvent;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
@@ -10,6 +11,8 @@ import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 import org.openjdk.jmh.annotations.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Warmup(iterations = 10, time = 1)
@@ -44,7 +47,7 @@ public class EventDrivenBenchmark {
   @Param({"10"})
   public int size;
 
-  private Buffer[] buffers;
+  private List<Buffer> buffers;
 
   @Setup
   public void setup() {
@@ -53,18 +56,18 @@ public class EventDrivenBenchmark {
       obj.put("number" + i, i);
     }
     Buffer buffer = obj.toBuffer();
-    buffers = new Buffer[slices];
+    buffers = new ArrayList<>();
     for (int i = 0; i < slices; i++) {
       int from = (buffer.length() * i) / slices;
       int to = (buffer.length() * (i + 1)) / slices;
-      buffers[i] = buffer.slice(from, to);
+      buffers.add(buffer.slice(from, to));
     }
   }
 
   @Benchmark
   public void jsonParser() throws Exception {
     CoroutineJsonParser parser = new CoroutineJsonParser(kotlinConsume);
-    parser.parseBlocking(buffers);
+    HelpersKt.parseBlocking(parser, buffers);
   }
 
   @Benchmark
