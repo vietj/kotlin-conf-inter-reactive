@@ -2,6 +2,8 @@ package com.julienviet.movierating
 
 import io.vertx.core.*
 import io.vertx.ext.jdbc.JDBCClient
+import io.vertx.ext.sql.SQLClient
+import io.vertx.ext.sql.SQLConnection
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.kotlin.core.json.array
@@ -132,7 +134,7 @@ class App : AbstractVerticle() {
                 if (ar3.succeeded()) {
                   ctx.response().setStatusCode(201).end()
                 } else {
-                  ctx.fail(ar1.cause())
+                  ctx.fail(ar3.cause())
                 }
               }
             } else {
@@ -141,7 +143,7 @@ class App : AbstractVerticle() {
             }
           } else {
             connection.close()
-            ctx.fail(ar1.cause())
+            ctx.fail(ar2.cause())
           }
         }
       } else {
@@ -165,4 +167,63 @@ class App : AbstractVerticle() {
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+// Divide an conquer approach
+class RateMovie(
+  val ctx: RoutingContext,
+  val client: SQLClient,
+  val movie: String,
+  val rating: Int) {
+
+  fun rate() {
+    client.getConnection {
+      if (it.succeeded()) {
+        query(it.result())
+      } else {
+        ctx.fail(it.cause())
+      }
+    }
+  }
+
+  fun query(connection: SQLConnection) {
+    val params = json { array(movie) }
+    connection.queryWithParams("SELECT TITLE FROM MOVIE WHERE ID=?", params) {
+      if (it.succeeded()) {
+        val result = it.result()
+        if (result.rows.size == 1) {
+          update(connection)
+        } else {
+          connection.close()
+          ctx.response().setStatusCode(404).end()
+        }
+      } else {
+        connection.close()
+        ctx.fail(it.cause())
+      }
+    }
+  }
+
+  fun update(connection: SQLConnection) {
+    val params = json { array(rating, movie) }
+    connection.updateWithParams("INSERT INTO RATING (VALUE, MOVIE_ID) VALUES ?, ?", params) {
+      connection.close()
+      if (it.succeeded()) {
+        ctx.response().setStatusCode(201).end()
+      } else {
+        ctx.fail(it.cause())
+      }
+    }
+  }
+}
+
 
