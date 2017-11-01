@@ -27,7 +27,7 @@ fun Ex2() {
       val result2 = awaitResult<String> { handler ->
         handler.handle(Future.failedFuture("Ouch"))
       }
-      println("Won't be called")
+      println("Result 2 $result1")
 
     } catch (e: Exception) {
       println("Ouch ${e.message}")
