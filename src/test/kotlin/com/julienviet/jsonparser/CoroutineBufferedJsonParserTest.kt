@@ -4,16 +4,20 @@ import com.julienviet.interreactive.splitToBuffers
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
+import junit.framework.Assert.assertEquals
+import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.launch
 import org.junit.Assert
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CoroutineBufferedJsonParserTest {
 
   @Test
   fun testParse() {
-    val tests: List<List<Any?>> = listOf(
+
+    val partial: List<List<Any?>> = listOf(
       listOf(null),
-      listOf(1234),
       listOf("the-string"),
       listOf(true),
       listOf(false),
@@ -27,21 +31,41 @@ class CoroutineBufferedJsonParserTest {
       listOf(JsonObject().put("1", JsonObject().put("2", JsonObject().put("3", 1234))).put("2", JsonArray().add("abc").add(JsonArray().add(1).add(2))))
     )
 
-    for (test in tests) {
+    for (test in partial) {
       generator(toJSON(test)).forEach {
-        Assert.assertEquals(test, assertParse(it))
+        assertParse(test, it)
       }
     }
+
+    generator(toJSON(listOf(1234))).forEach {
+      assertParse(listOf(1234), it, false)
+    }
+
 
     failParse("nul")
   }
 
-  fun assertParse(s: String): List<Any?> {
+  fun assertParse(expected: List<Any?>, s: String, partial: Boolean = true) {
     val builder = Builder()
     val parser = CoroutineJsonParser(builder::handle)
     val buffers = splitToBuffers(s)
-    parser.parseBlocking(buffers)
-    return builder.result()
+
+    val ch = Channel<Buffer>(buffers.size)
+    for (buffer in buffers) {
+      ch.offer(buffer)
+    }
+    if (!partial) {
+      ch.close()
+    }
+    launch {
+      parser.parse(ch.iterator())
+    }
+    val time = System.currentTimeMillis()
+    while (builder.result().size < expected.size) {
+      assertTrue("Timeout parsing ${expected}", (System.currentTimeMillis() - time) < 1000)
+      Thread.sleep(10)
+    }
+    assertEquals(expected, builder.result())
   }
 
   fun failParse(s: String) {

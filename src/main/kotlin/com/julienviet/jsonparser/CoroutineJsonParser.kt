@@ -37,37 +37,41 @@ class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
   }
 
   private suspend fun parseNull() {
-    nextChar('n')
-    nextChar('u')
-    nextChar('l')
-    nextChar('l')
+    assertChar('n')
+    nextChar()
+    assertChar('u')
+    nextChar()
+    assertChar('l')
+    nextChar()
+    assertChar('l')
     handler(JsonEvent.Value<Unit>(null))
+    nextChar()
   }
 
   private suspend fun parseObject() {
+    assertChar('{')
     handler(JsonEvent.StartObject())
-    nextChar('{')
+    nextChar()
     skipWhitespace()
-    if (c == '}') {
-      nextChar()
-    } else {
+    if (c != '}') {
       while (true) {
-        nextChar('"')
+        assertChar('"')
+        nextChar()
         val acc = StringBuilder()
         while (c != '"') {
           acc.append(c)
           nextChar()
         }
-        nextChar('"')
+        assertChar('"')
+        nextChar()
         skipWhitespace()
-        nextChar(':')
-        skipWhitespace()
+        assertChar(':')
         handler(JsonEvent.Member(acc.toString()))
+        nextChar()
+        skipWhitespace()
         parseElement()
         skipWhitespace()
         if (c == '}') {
-          nextChar()
-          skipWhitespace()
           break
         } else if (c == ',') {
           nextChar()
@@ -78,21 +82,19 @@ class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
       }
     }
     handler(JsonEvent.EndObject())
+    nextChar()
   }
 
   private suspend fun parseArray() {
+    assertChar('[')
     handler(JsonEvent.StartArray())
-    nextChar('[')
+    nextChar()
     skipWhitespace()
-    if (c == ']') {
-      nextChar()
-    } else {
+    if (c != ']') {
       while (true) {
         parseElement()
         skipWhitespace()
         if (c == ']') {
-          nextChar()
-          skipWhitespace()
           break
         } else if (c == ',') {
           nextChar()
@@ -103,34 +105,47 @@ class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
       }
     }
     handler(JsonEvent.EndArray())
+    nextChar()
+    skipWhitespace()
   }
 
   private suspend fun parseTrue() {
-    nextChar('t')
-    nextChar('r')
-    nextChar('u')
-    nextChar('e')
+    assertChar('t')
+    nextChar()
+    assertChar('r')
+    nextChar()
+    assertChar('u')
+    nextChar()
+    assertChar('e')
     handler(JsonEvent.Value(true))
+    nextChar()
   }
 
   private suspend fun parseFalse() {
-    nextChar('f')
-    nextChar('a')
-    nextChar('l')
-    nextChar('s')
-    nextChar('e')
+    assertChar('f')
+    nextChar()
+    assertChar('a')
+    nextChar()
+    assertChar('l')
+    nextChar()
+    assertChar('s')
+    nextChar()
+    assertChar('e')
     handler(JsonEvent.Value(false))
+    nextChar()
   }
 
   private suspend fun parseString() {
-    nextChar('"')
+    assertChar('"')
+    nextChar()
     val acc = StringBuilder()
     while (c != '"') {
       acc.append(c)
       nextChar()
     }
-    nextChar('"')
+    assertChar('"')
     handler(JsonEvent.Value(acc.toString()))
+    nextChar()
   }
 
   private suspend fun parseNumber() {
@@ -142,10 +157,13 @@ class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
     handler(JsonEvent.Value(Integer.parseInt(acc.toString())))
   }
 
-  private suspend fun nextChar(expected: Char? = null) {
+  private fun assertChar(expected: Char? = null) {
     if (expected != null && c != expected) {
       throw IllegalStateException("Unexpected char ${c.toInt()}")
     }
+  }
+
+  private suspend fun nextChar() {
     while (true) {
       val b = buffer
       if (b == null || index >= b.length()) {
