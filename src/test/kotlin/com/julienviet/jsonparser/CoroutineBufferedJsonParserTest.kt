@@ -1,4 +1,4 @@
-package com.julienviet.interreactive.bufferedjsonparser
+package com.julienviet.jsonparser
 
 import com.julienviet.interreactive.splitToBuffers
 import io.vertx.core.buffer.Buffer

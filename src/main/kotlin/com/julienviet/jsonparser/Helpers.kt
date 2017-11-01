@@ -1,4 +1,4 @@
-package com.julienviet.interreactive.bufferedjsonparser
+package com.julienviet.jsonparser
 
 import io.vertx.core.buffer.Buffer
 import kotlinx.coroutines.experimental.Unconfined
