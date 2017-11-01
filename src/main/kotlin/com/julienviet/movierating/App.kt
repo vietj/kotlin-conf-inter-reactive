@@ -106,7 +106,7 @@ class App : AbstractVerticle() {
         val result = ar.result()
         if (result.rows.size == 1) {
           ctx.response().end(json {
-            obj("id" to id, "title" to result.rows[0]["TITLE"]).encode()
+            obj("id" to id, "title" to result.rows[0]["TITLE"]).encodePrettily()
           })
         } else {
           ctx.response().setStatusCode(404).end()
@@ -159,7 +159,7 @@ class App : AbstractVerticle() {
       if (ar.succeeded()) {
         val result = ar.result()
         ctx.response().end(json {
-          obj("id" to id, "rating" to result.rows[0]["VALUE"]).encode()
+          obj("id" to id, "rating" to result.rows[0]["VALUE"]).encodePrettily()
         })
       } else {
         ctx.fail(ar.cause())

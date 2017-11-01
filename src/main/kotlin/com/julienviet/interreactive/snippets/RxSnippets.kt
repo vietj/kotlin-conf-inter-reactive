@@ -43,23 +43,28 @@ fun callbackHell(router: Router, client: SQLClient, ctx: RoutingContext) {
   val update = "INSERT INTO RATING (VALUE, MOVIE_ID) VALUES ?, ?"
   val updateParams = json { array(rating, movie) }
 
-  val single = client.rxGetConnection()
-    .flatMap { connection ->
-      connection
-        .rxQueryWithParams(query, queryParams)
-        .flatMap({ result ->
-          if (result.results.size == 1) {
-            connection.rxUpdateWithParams(update, updateParams)
-          } else {
-            Single.error<UpdateResult>(NotFoundException())
-          }
-        })
-        .doAfterTerminate { connection.close() }
-    }
+  val single = client.rxGetConnection().flatMap {
+    connection ->
+    connection
+      .rxQueryWithParams(query, queryParams)
+      .flatMap {
+        result ->
+        if (result.results.size == 1) {
+          connection.rxUpdateWithParams(update, updateParams)
+        } else {
+          Single.error<UpdateResult>(NotFoundException())
+        }
+      }
+      .doAfterTerminate { connection.close() }
+  }
 
   single.subscribe(
-    { ctx.response().setStatusCode(201).end() },
-    { ctx.fail(it) }
+    {
+      ctx.response().setStatusCode(201).end()
+    },
+    {
+      ctx.fail(it)
+    }
   )
 }
 
