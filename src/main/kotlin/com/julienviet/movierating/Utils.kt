@@ -26,7 +26,7 @@ fun Router.get(path: String, handler: suspend (RoutingContext) -> Unit): Route {
 }
 
 fun Router.post(path: String, handler: suspend (RoutingContext) -> Unit): Route {
-  return get(path).handler(handler)
+  return post(path).handler(handler)
 }
 
 operator fun Router.invoke(body: Router.() -> Unit) {
