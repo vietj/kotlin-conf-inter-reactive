@@ -4,7 +4,7 @@ import com.julienviet.interreactive.jsonparser.JsonEvent
 import io.vertx.core.buffer.Buffer
 import kotlinx.coroutines.experimental.channels.ChannelIterator
 
-class CoroutineJsonParser(val handler : (JsonEvent) -> Unit = {}) {
+class CoroutineJsonParser(val handler : suspend (JsonEvent) -> Unit = {}) {
 
   var stream: ChannelIterator<Buffer> = emptyChannelIterator()
   var c: Char = NO_CHAR

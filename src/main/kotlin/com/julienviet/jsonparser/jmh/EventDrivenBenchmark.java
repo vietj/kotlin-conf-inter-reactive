@@ -8,7 +8,9 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.parsetools.JsonParser;
 import kotlin.Unit;
+import kotlin.coroutines.experimental.Continuation;
 import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.ArrayList;
@@ -28,11 +30,11 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Thread)
 public class EventDrivenBenchmark {
 
-  private static Function1<JsonEvent, Unit> kotlinConsume = EventDrivenBenchmark::consume;
+  private static Function2<JsonEvent, Continuation<? super Unit>, Object> kotlinConsume = EventDrivenBenchmark::consume;
   private static Handler<io.vertx.core.parsetools.JsonEvent> vertxConsume = EventDrivenBenchmark::consume;
 
   @CompilerControl(CompilerControl.Mode.DONT_INLINE)
-  public static Unit consume(final JsonEvent event) {
+  public static Unit consume(final JsonEvent event, Continuation<? super Unit> cont) {
     return null;
   }
 
@@ -66,7 +68,10 @@ public class EventDrivenBenchmark {
 
   @Benchmark
   public void jsonParser() throws Exception {
-    CoroutineJsonParser parser = new CoroutineJsonParser(kotlinConsume);
+    Function2<JsonEvent, Continuation<? super Unit>, Object> jsonEventContinuationObjectFunction2 = (a, b) -> {
+      return null;
+    };
+    CoroutineJsonParser parser = new CoroutineJsonParser(jsonEventContinuationObjectFunction2);
     HelpersKt.parseBlocking(parser, buffers);
   }
 

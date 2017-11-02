@@ -43,8 +43,6 @@ fun SynchronousJsonParser.parse(b: Buffer) {
   parse(listOf(b).iterator())
 }
 
-
-
 fun CoroutineJsonParser.parseBlocking(buffers: List<Buffer>) {
   val channel = Channel<Buffer>()
   var err: Throwable? = null

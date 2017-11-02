@@ -1,4 +1,4 @@
-package com.julienviet.movierating
+package com.julienviet.utils
 
 import io.vertx.ext.web.Route
 import io.vertx.ext.web.Router
@@ -27,6 +27,10 @@ fun Router.get(path: String, handler: suspend (RoutingContext) -> Unit): Route {
 
 fun Router.post(path: String, handler: suspend (RoutingContext) -> Unit): Route {
   return post(path).handler(handler)
+}
+
+fun Router.put(path: String, handler: suspend (RoutingContext) -> Unit): Route {
+  return put(path).handler(handler)
 }
 
 operator fun Router.invoke(body: Router.() -> Unit) {

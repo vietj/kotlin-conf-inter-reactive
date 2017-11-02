@@ -47,7 +47,7 @@ class CoroutineBufferedJsonParserTest {
 
   fun assertParse(expected: List<Any?>, s: String, partial: Boolean = true) {
     val builder = Builder()
-    val parser = CoroutineJsonParser(builder::handle)
+    val parser = CoroutineJsonParser({ event -> builder.handle(event) })
     val buffers = splitToBuffers(s)
 
     val ch = Channel<Buffer>(buffers.size)
