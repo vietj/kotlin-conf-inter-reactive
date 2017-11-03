@@ -20,20 +20,20 @@ fun main(args: Array<String>) {
 
     val writeStream: WriteStream<Buffer> = request.response()
 
-    fun writeItems(count: Int = 1) {
-      if (count <= 10000) {
-        writeStream.write(Buffer.buffer("Item-$count"))
-        if (writeStream.writeQueueFull()) {
-          writeStream.drainHandler { writeItems(count) }
-        } else {
-          writeItems(count + 1)
-        }
-      } else {
-        request.response().end()
-      }
+    val item = Buffer.buffer("the-item")
+
+    fun sendItemAndClose() {
+      writeStream.write(item)
+      request.response().end()
     }
 
-    writeItems()
+    if (!writeStream.writeQueueFull()) {
+      sendItemAndClose()
+    } else {
+      writeStream.drainHandler {
+        sendItemAndClose()
+      }
+    }
 
   }.listen(8080)
 }

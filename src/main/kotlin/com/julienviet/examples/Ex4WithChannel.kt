@@ -6,7 +6,6 @@ import io.vertx.core.streams.WriteStream
 import io.vertx.kotlin.coroutines.dispatcher
 import io.vertx.kotlin.coroutines.toChannel
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 
 // Channel example
 fun main(args: Array<String>) {
@@ -20,11 +19,10 @@ fun main(args: Array<String>) {
     val sendChannel = writeStream.toChannel(vertx)
 
     launch(vertx.dispatcher()) {
-      for (count in 1..10000) {
-        sendChannel.send(Buffer.buffer("Item-$count"))
-      }
+
+      sendChannel.send(Buffer.buffer("the-item"))
+
       request.response().end()
     }
-
   }.listen(8080)
 }
