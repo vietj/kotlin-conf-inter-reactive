@@ -100,7 +100,7 @@ class SynchronousJsonParser(val handler : (JsonEvent) -> Unit = {}) {
           nextChar()
           skipWhitespace()
         } else {
-          throw IllegalStateException()
+          throw IllegalStateException("Unexpected char ${c.toInt()}")
         }
       }
     }

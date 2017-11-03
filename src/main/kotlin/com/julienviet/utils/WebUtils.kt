@@ -21,16 +21,28 @@ fun Route.handler(fn : suspend (RoutingContext) -> Unit): Route {
   }
 }
 
-fun Router.get(path: String, handler: suspend (RoutingContext) -> Unit): Route {
-  return get(path).handler(handler)
+fun Router.get(path: String? = null, handler: suspend (RoutingContext) -> Unit): Route {
+  if (path != null) {
+    return get(path).handler(handler)
+  } else {
+    return get().handler(handler)
+  }
 }
 
-fun Router.post(path: String, handler: suspend (RoutingContext) -> Unit): Route {
-  return post(path).handler(handler)
+fun Router.post(path: String? = null, handler: suspend (RoutingContext) -> Unit): Route {
+  if (path != null) {
+    return post(path).handler(handler)
+  } else {
+    return post().handler(handler)
+  }
 }
 
-fun Router.put(path: String, handler: suspend (RoutingContext) -> Unit): Route {
-  return put(path).handler(handler)
+fun Router.put(path: String? = null, handler: suspend (RoutingContext) -> Unit): Route {
+  if (path != null) {
+    return put(path).handler(handler)
+  } else {
+    return put().handler(handler)
+  }
 }
 
 operator fun Router.invoke(body: Router.() -> Unit) {
