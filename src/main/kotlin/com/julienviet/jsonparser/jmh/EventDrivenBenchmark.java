@@ -46,7 +46,7 @@ public class EventDrivenBenchmark {
   @Param({"1", "10"})
   public int slices;
 
-  @Param({"10"})
+  @Param({"10", "100", "1000"})
   public int size;
 
   private List<Buffer> buffers;

@@ -40,7 +40,7 @@ public class SynchronousBenchmark {
   public static void consume(final Map obj) {
   }
 
-  @Param({"10"})
+  @Param({"10", "100", "1000"})
   public int size;
 
   @Setup
