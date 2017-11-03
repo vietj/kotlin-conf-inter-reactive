@@ -119,34 +119,12 @@ class App : AbstractVerticle() {
   }
 
   // Rate a movie
-  private fun rateMovie(ctx: RoutingContext) {
+  fun rateMovie(ctx: RoutingContext) {
     val movie = ctx.pathParam("id")
     val rating = Integer.parseInt(ctx.queryParam("rating")[0])
     client.getConnection { ar1 ->
       if (ar1.succeeded()) {
-        val connection = ar1.result()
-        connection.queryWithParams("SELECT TITLE FROM MOVIE WHERE ID=?", json { array(movie) }) { ar2 ->
-          if (ar2.succeeded()) {
-            val result = ar2.result()
-            if (result.rows.size == 1) {
-              connection.updateWithParams("INSERT INTO RATING (VALUE, MOVIE_ID) VALUES ?, ?", json { array(rating, movie) }) {
-                ar3 ->
-                connection.close()
-                if (ar3.succeeded()) {
-                  ctx.response().setStatusCode(201).end()
-                } else {
-                  ctx.fail(ar3.cause())
-                }
-              }
-            } else {
-              connection.close()
-              ctx.response().setStatusCode(404).end()
-            }
-          } else {
-            connection.close()
-            ctx.fail(ar2.cause())
-          }
-        }
+        // ...
       } else {
         ctx.fail(ar1.cause())
       }
