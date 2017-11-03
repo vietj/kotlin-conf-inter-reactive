@@ -1,5 +1,6 @@
 package com.julienviet.jsonparser
 
+import com.julienviet.jsonparser.backup.CoroutineJsonParser
 import io.vertx.core.buffer.Buffer
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.Channel

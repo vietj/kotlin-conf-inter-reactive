@@ -1,6 +1,6 @@
 package com.julienviet.jsonparser.jmh;
 
-import com.julienviet.jsonparser.CoroutineJsonParser;
+import com.julienviet.jsonparser.backup.CoroutineJsonParser;
 import com.julienviet.jsonparser.HelpersKt;
 import com.julienviet.interreactive.jsonparser.JsonEvent;
 import io.vertx.core.Handler;
@@ -9,7 +9,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.parsetools.JsonParser;
 import kotlin.Unit;
 import kotlin.coroutines.experimental.Continuation;
-import kotlin.jvm.functions.Function1;
 import kotlin.jvm.functions.Function2;
 import org.openjdk.jmh.annotations.*;
 

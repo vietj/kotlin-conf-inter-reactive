@@ -1,7 +1,7 @@
 package com.julienviet.jsonparser.app
 
 import com.julienviet.interreactive.jsonparser.JsonEvent
-import com.julienviet.jsonparser.CoroutineJsonParser
+import com.julienviet.jsonparser.backup.CoroutineJsonParser
 import io.vertx.core.Vertx
 import io.vertx.ext.web.Router
 import kotlinx.coroutines.experimental.channels.produce
