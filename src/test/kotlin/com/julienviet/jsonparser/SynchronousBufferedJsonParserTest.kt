@@ -1,6 +1,5 @@
 package com.julienviet.jsonparser
 
-import com.julienviet.interreactive.splitToBuffers
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import org.junit.Assert.assertEquals

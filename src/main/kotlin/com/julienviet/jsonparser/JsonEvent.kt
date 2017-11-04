@@ -1,4 +1,4 @@
-package com.julienviet.interreactive.jsonparser
+package com.julienviet.jsonparser
 
 sealed class JsonEvent {
 

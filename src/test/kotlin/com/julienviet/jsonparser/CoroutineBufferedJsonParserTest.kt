@@ -1,6 +1,5 @@
 package com.julienviet.jsonparser
 
-import com.julienviet.interreactive.splitToBuffers
 import com.julienviet.jsonparser.backup.CoroutineJsonParser
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.json.JsonArray

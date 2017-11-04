@@ -1,6 +1,6 @@
 package com.julienviet.jsonparser.backup
 
-import com.julienviet.interreactive.jsonparser.JsonEvent
+import com.julienviet.jsonparser.JsonEvent
 import com.julienviet.jsonparser.NO_CHAR
 import com.julienviet.jsonparser.emptyChannelIterator
 import io.vertx.core.buffer.Buffer

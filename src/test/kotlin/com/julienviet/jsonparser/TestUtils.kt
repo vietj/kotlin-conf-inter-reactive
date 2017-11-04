@@ -1,6 +1,6 @@
 package com.julienviet.jsonparser
 
-import com.julienviet.interreactive.jsonparser.JsonEvent
+import io.vertx.core.buffer.Buffer
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import java.util.*
@@ -121,5 +121,13 @@ fun toJSON(obj: Any?): List<String> {
     }
     else -> throw IllegalStateException()
   }
+}
+
+fun splitToBuffers(s: String): List<Buffer> {
+  val list = ArrayList<Buffer>()
+  for (index in 0 until s.length step 2) {
+    list += Buffer.buffer(s.substring(index, Math.min(index + 2, s.length)))
+  }
+  return list
 }
 

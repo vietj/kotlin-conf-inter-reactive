@@ -2,7 +2,7 @@ package com.julienviet.jsonparser.jmh;
 
 import com.julienviet.jsonparser.backup.CoroutineJsonParser;
 import com.julienviet.jsonparser.HelpersKt;
-import com.julienviet.interreactive.jsonparser.JsonEvent;
+import com.julienviet.jsonparser.JsonEvent;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
